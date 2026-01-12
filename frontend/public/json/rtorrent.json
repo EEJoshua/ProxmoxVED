@@ -27,8 +27,13 @@
     }
   ],
   "default_credentials": {
-    "username": null,
-    "password": null
+    "username": "admin",
+    "password": "randomly generated - see ~/rtorrent.creds"
   },
-  "notes": []
+  "notes": [
+    "rTorrent runs as unprivileged user 'rtorrent' (UID 1000)",
+    "Downloads stored in /home/rtorrent/download",
+    "Watch folder at /home/rtorrent/watch",
+    "Credentials saved to ~/rtorrent.creds inside container"
+  ]
 }

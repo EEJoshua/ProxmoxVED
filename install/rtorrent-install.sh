@@ -62,6 +62,7 @@ $STD apt-get install -y \
   libjson-perl \
   libjson-xs-perl \
   libxml-libxslt-perl \
+  apache2-utils \
   unrar
 msg_ok "Installed Dependencies"
 
@@ -207,6 +208,19 @@ chown -R www-data:www-data /var/www/rutorrent
 chmod -R 775 /var/www/rutorrent
 msg_ok "Installed ruTorrent"
 
+msg_info "Configuring ruTorrent Authentication"
+RUTORRENT_USER="admin"
+RUTORRENT_PASS=$(openssl rand -base64 18 | tr -dc 'a-zA-Z0-9' | head -c13)
+htpasswd -bc /etc/nginx/.htpasswd "$RUTORRENT_USER" "$RUTORRENT_PASS" >/dev/null 2>&1
+chmod 640 /etc/nginx/.htpasswd
+chown root:www-data /etc/nginx/.htpasswd
+{
+    echo "ruTorrent Credentials"
+    echo "Username: $RUTORRENT_USER"
+    echo "Password: $RUTORRENT_PASS"
+} >> ~/rtorrent.creds
+msg_ok "Configured ruTorrent Authentication"
+
 msg_info "Installing Autodl-Irssi Plugin"
 git clone -q https://github.com/swizzin/autodl-rutorrent.git /var/www/rutorrent/plugins/autodl-irssi
 chown -R www-data:www-data /var/www/rutorrent/plugins/autodl-irssi
@@ -245,6 +259,8 @@ server {
     error_log /var/log/nginx/rutorrent-error.log;
 
     location / {
+        auth_basic "ruTorrent";
+        auth_basic_user_file /etc/nginx/.htpasswd;
         try_files \$uri \$uri/ =404;
     }
 
